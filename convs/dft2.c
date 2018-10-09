@@ -3,7 +3,9 @@
 #include <math.h>
 
 #define PI 3.14159265
-#define N 3 // spatial resolution (input size)
+#define S 3 // spatial resolution (input size)
+#define K 1 // kernel size
+#define N (S+K-1)
 
 void print_matrix(float matrix[N][N]) {
   for(int y=0; y<N; y++) {
@@ -72,25 +74,60 @@ void idft2(float in_real[N][N], float in_im[N][N], float out[N][N]) {
   }
 }
 
+void complex_mul2(float a_real[N][N], float a_im[N][N], float b_real[N][N], float b_im[N][N], float out_real[N][N], float out_im[N][N]) {
+  for(int m=0; m<N; m++)
+  for(int n=0; n<N; n++) {
+    out_real[m][n] = 0;
+    out_real[m][n] += a_real[m][n] * b_real[m][n];
+    out_real[m][n] -= a_im[m][n] * b_im[m][n];
+
+    out_im[m][n] = 0;
+    out_im[m][n] += a_im[m][n] * b_real[m][n];
+    out_im[m][n] += a_real[m][n] * b_im[m][n];
+  }
+
+}
+
 int main() {
+  // Instantiate input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
   float x[N][N] = {{2,3},{4,5}};
-  float y_cos[N][N] = {0};
-  float y_sin[N][N] = {0};
-  float y[N][N] = {0};
-  
+  float x_real[N][N] = {0};
+  float x_im[N][N] = {0};
+  float x_[N][N] = {0};
+
+
+  // Instantiate signal filter (same as input signal)
+  float k[N][N] = {{2}};
+  float k_real[N][N] = {0};
+  float k_im[N][N] = {0};
+
+
+  // Instantiate filter output (vectors for convolution output as frequency coefficientes, reversed spatial data as final output)
+  float y_real[N][N] = {0};
+  float y_im[N][N] = {0};
+  float y_[N][N] = {0};
+
+  printf("\nInput\n");
   print_matrix(x);
-  print_matrix(y_cos);
-  print_matrix(y_sin);
-
-  dft2(x, y_cos, y_sin);
   
-  print_matrix(x);
-  print_matrix(y_cos);
-  print_matrix(y_sin);
+  //print_matrix(y_cos);
+  //print_matrix(y_sin);
 
-  idft2(y_cos, y_sin, y);
+  dft2(x, x_real, x_im);
+  dft2(k, k_real, k_im);
 
-  print_matrix(y);
+  complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
+
+  printf("\nEncoded\n");
+  print_matrix(x_real);
+  print_matrix(x_im);
+
+  idft2(x_real, x_im, x_);
+  idft2(y_real, y_im, y_);
+
+  printf("\nDecoded\n");
+  print_matrix(x_);
+  print_matrix(y_);
 
 
   return 0;
