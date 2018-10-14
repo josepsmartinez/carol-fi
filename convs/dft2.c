@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "malloc2d.h"
+
 #define PI 3.14159265
 #define S 4 // spatial resolution (input size)
 #define K 3 // kernel size
 #define N (S+K-1)
 
-void print_matrix(float matrix[N][N]) {
+void print_matrix(float **matrix){
   for(int y=0; y<N; y++) {
     for(int x=0; x<N; x++) {
       printf("| %10f ", matrix[y][x]);
@@ -17,7 +19,7 @@ void print_matrix(float matrix[N][N]) {
   printf("\n");
 }
 
-void dft2(float in[N][N], float out_real[N][N], float out_im[N][N]) {
+void dft2(float **in, float **out_real, float **out_im) {
   float mid_real[N][N] = {0};
   float mid_im[N][N] = {0} ;
   
@@ -45,7 +47,7 @@ void dft2(float in[N][N], float out_real[N][N], float out_im[N][N]) {
   }
 }
 
-void idft2(float in_real[N][N], float in_im[N][N], float out[N][N]) {
+void idft2(float **in_real, float **in_im, float **out) {
   float mid_real[N][N] = {0};
   float mid_im[N][N] = {0};
 
@@ -74,7 +76,7 @@ void idft2(float in_real[N][N], float in_im[N][N], float out[N][N]) {
   }
 }
 
-void complex_mul2(float a_real[N][N], float a_im[N][N], float b_real[N][N], float b_im[N][N], float out_real[N][N], float out_im[N][N]) {
+void complex_mul2(float **a_real, float **a_im, float **b_real, float **b_im, float **out_real, float **out_im) {
   for(int m=0; m<N; m++) {
     for(int n=0; n<N; n++) {
       out_real[m][n] = 0;
@@ -88,7 +90,7 @@ void complex_mul2(float a_real[N][N], float a_im[N][N], float b_real[N][N], floa
   }
 }
 
-void shift2d(float in[N][N], float out[N][N], int limit) {
+void shift2d(float** in, float **out, int limit) {
   int mean_point = limit/2;
 
   // writes -1 on output (just to check every pixel gets rewritten)
@@ -121,34 +123,47 @@ void shift2d(float in[N][N], float out[N][N], int limit) {
 
 int main() {
   // Instantiate input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
-  float x[N][N] = {{1,2,3},{4,5,6},{7,8,9}};
-  float x_real[N][N] = {0};
-  float x_im[N][N] = {0};
-  float x_[N][N] = {0};
+  float **x = malloc_2d(N, N, 0.0);
+  x[0][0] = 1;
+  x[0][1] = 2;
+  x[0][2] = 3; //
+  x[1][0] = 4;
+  x[1][1] = 5;
+  x[1][2] = 6; //
+  x[2][0] = 7;
+  x[2][1] = 8;
+  x[2][2] = 9;
+  
+  float **x_real = malloc_2d(N, N, 0.0);
+  float **x_im = malloc_2d(N, N, 0.0);
+  float **x_ = malloc_2d(N, N, 0.0);
 
 
   // Instantiate filter signal (same as input signal)
-  float k[N][N] = {{0,0,0}, {0,2,0}, {0,0,0}};
-  float k_shifted[N][N] = {0};
-  float k_real[N][N] = {0};
-  float k_im[N][N] = {0};
+  float **k = malloc_2d(N, N, 0.0);
+  k[1][1] = 2;
+    
+  float **k_shifted = malloc_2d(N, N, 0.0);
+  float **k_real = malloc_2d(N, N, 0.0);
+  float **k_im = malloc_2d(N, N, 0.0);
 
 
   // Instantiate filter output (vectors for convolution output as frequency coefficientes, reversed spatial data as final output)
-  float y_real[N][N] = {0};
-  float y_im[N][N] = {0};
-  float y_[N][N] = {0};
+  float **y_real = malloc_2d(N, N, 0.0);
+  float **y_im = malloc_2d(N, N, 0.0);
+  float **y_ = malloc_2d(N, N, 0.0);
 
   printf("\nInput\n");
   print_matrix(x);
   print_matrix(k);
 
-
+  
   // Shift filter signal
   shift2d(k, k_shifted, K);
   
   printf("\nShifted\n");
   print_matrix(k_shifted);
+
   
   dft2(x, x_real, x_im);
   dft2(k_shifted, k_real, k_im);
@@ -160,7 +175,7 @@ int main() {
   print_matrix(x_real);
   print_matrix(x_im);
   */
-
+  
   idft2(x_real, x_im, x_);
   idft2(y_real, y_im, y_);
 
@@ -168,6 +183,21 @@ int main() {
   print_matrix(x_);
   print_matrix(y_);
 
+  // Frees allocated instances
+  free_2d(N, x);
+  free_2d(N, x_im);
+  free_2d(N, x_real);
+  free_2d(N, x_);
+
+  free_2d(N, k);
+  free_2d(N, k_shifted);
+  free_2d(N, k_im);
+  free_2d(N, k_real);
+
+  free_2d(N, y_im);
+  free_2d(N, y_real);
+  free_2d(N, y_);
 
   return 0;
+ 
 }
