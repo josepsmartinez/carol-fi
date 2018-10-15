@@ -6,15 +6,15 @@
 
 
 int main() {
-  float **input_matrix = malloc_2d(S, S, 0.0);
-  float **input_kernels = malloc_2d(M, K*K, 0.0);
+  float **input_matrix;
+  float **input_kernels;
 
   printf("Reading input matrix\n");
-  read_persisted_matrix(input_matrix);
-  print_matrix(input_matrix, 10, 10);
+  input_matrix = read_persisted_matrix();
+  print_matrix(input_matrix, 5, 5);
 
   printf("Reading input kernels\n");
-  read_persisted_kernels(input_kernels);
+  input_kernels = read_persisted_kernels();
   print_kernels(input_kernels, 5);
 
   printf("Freeing\n");

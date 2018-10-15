@@ -24,9 +24,7 @@ void print_kernels(float **kernels, int limit){
   for(int m=0; m<limit; m++) {
     kernel_matrix_from_line(kernels[m], kernel_buffer);
     print_matrix(kernel_buffer, K, K);
-    //printf("|\n");
   }
-  printf("\n");
 
   free_2d(K, kernel_buffer);
 }
@@ -114,47 +112,66 @@ void persist_input_kernels() {
 }
 
 // READ
-void read_persisted_matrix(float **im_out) {
+float** read_persisted_matrix() {
+  float **im_out;
+  int matrix_dim;
+  
   FILE *input_ptr;
   int buffer_i;
   float buffer_f;
 
   input_ptr = fopen("new_matrix.bin", "rb");
 
-  // ignoring header
+  // infers image size from header
   fread(&buffer_i, sizeof(int), 1, input_ptr);
+  matrix_dim = buffer_i;
 
-  // data
-  for(int y=0; y<S; y++){
-    for(int x=0; x<S; x++) {
+  // finally allocates and fills input matrix
+  im_out = malloc_2d(matrix_dim, matrix_dim, 0.0);
+  
+  for(int y=0; y<matrix_dim; y++){
+    for(int x=0; x<matrix_dim; x++) {
       fread(&buffer_f, sizeof(float), 1, input_ptr);
       im_out[y][x] = buffer_f;
     }
   }
 
-  // close
+  // close file and return pointer
   fclose(input_ptr);
+  return im_out;
 }
 
-void read_persisted_kernels(float **kernels_out){
+float** read_persisted_kernels(){
+  float **kernels_out;
+  int n_kernels=0;
+  int n_filter=0;
+  
   FILE *input_ptr;
   int buffer_i;
   float buffer_f;
 
   input_ptr = fopen("new_kernels.bin", "rb");
 
-  // ignoring header
+  // infers how many kernels and their size from header
   fread(&buffer_i, sizeof(int), 1, input_ptr);
-  fread(&buffer_i, sizeof(int), 1, input_ptr);
+  n_kernels = buffer_i;
 
-  for(int m=0; m<M; m++){
-    for(int k=0; k<K*K; k++) {
+  fread(&buffer_i, sizeof(int), 1, input_ptr);
+  n_filter = buffer_i;
+
+  // allocates and fills kernels matrix
+  kernels_out = malloc_2d(n_kernels, (n_filter*n_filter), 0.0);
+
+  for(int m=0; m<n_kernels; m++){
+    for(int k=0; k<(n_filter*n_filter); k++) {
       fread(&buffer_f, sizeof(float), 1, input_ptr);
       kernels_out[m][k] = buffer_f;
     }
   }
 
+  // close file and return pointer
   fclose(input_ptr);
+  return kernels_out;
 }
 
 void kernel_matrix_from_line(float *kernel_line, float** kernel_matrix) {
