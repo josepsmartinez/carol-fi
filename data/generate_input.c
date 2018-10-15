@@ -6,9 +6,6 @@
 #include "input_synth.h"
 
 int main() {
-  float **input_matrix = malloc_2d(S, S, 0.0);
-  float **input_kernels = malloc_2d(M, K, 0.0);
-  
   time_t t;
 
   
@@ -21,10 +18,6 @@ int main() {
   
   printf("Persisting input kernels\n");
   persist_input_kernels();
-
-  printf("Freeing\n");
-  free_2d(S, input_matrix);
-  free_2d(M, input_kernels);
   
   return 0;
 }
