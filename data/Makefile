@@ -1,7 +1,6 @@
 all: generate_input read_input
 
 test_generation: all
-	clear
 	./generate_input.out
 	./read_input.out
 
