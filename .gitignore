@@ -1,2 +1,10 @@
+# temps
 **/*~
+
+# c outputs
 **/*.out
+**/*.o
+
+# carol-fi output
+*.log
+logs/
