@@ -11,11 +11,11 @@ int main() {
 
   printf("Reading input matrix\n");
   read_persisted_matrix(input_matrix);
-  print_matrix(input_matrix);
+  print_matrix(input_matrix, 10, 10);
 
   printf("Reading input kernels\n");
   read_persisted_kernels(input_kernels);
-  print_kernels(input_kernels);
+  print_kernels(input_kernels, 5);
 
   printf("Freeing\n");
   free_2d(S, input_matrix);

@@ -8,9 +8,9 @@
 #include "input_synth.h"
 
 // VISUALIZATION
-void print_matrix(float **matrix){
-  for(int y=0; y<10; y++) {
-    for(int x=0; x<10; x++) {
+void print_matrix(float **matrix, int limit_n2, int limit_n1){
+  for(int y=0; y<limit_n2; y++) {
+    for(int x=0; x<limit_n1; x++) {
       printf("| %1.4f ", matrix[y][x]);
     }
     printf("|\n");
@@ -18,14 +18,17 @@ void print_matrix(float **matrix){
   printf("\n");
 }
 
-void print_kernels(float **kernels){
-  for(int m=0; m<10; m++) {
-    for(int k=0; k<K*K; k++) {
-      printf("| %1.4f ", kernels[m][k]);
-    }
-    printf("|\n");
+void print_kernels(float **kernels, int limit){
+  float **kernel_buffer = malloc_2d(K, K, 0.0);
+
+  for(int m=0; m<limit; m++) {
+    kernel_matrix_from_line(kernels[m], kernel_buffer);
+    print_matrix(kernel_buffer, K, K);
+    //printf("|\n");
   }
   printf("\n");
+
+  free_2d(K, kernel_buffer);
 }
 
 // WRITE
@@ -46,7 +49,7 @@ void persist_input_matrix() {
     }
   }
 
-  print_matrix(im_in);
+  print_matrix(im_in, 5, 5);
 
   /* file output */
   output_ptr = fopen("new_matrix.bin", "wb");
@@ -83,7 +86,7 @@ void persist_input_kernels() {
     }
   }
 
-  print_kernels(kernels_in);
+  print_kernels(kernels_in, 5);
   
   /* write output file */
   output_ptr = fopen("new_kernels.bin", "wb");
@@ -152,4 +155,12 @@ void read_persisted_kernels(float **kernels_out){
   }
 
   fclose(input_ptr);
+}
+
+void kernel_matrix_from_line(float *kernel_line, float** kernel_matrix) {
+  for(int y=0; y<K; y++) {
+    for(int x=0; x<K; x++) {
+      kernel_matrix[y][x] = kernel_line[K*y + x];
+    }
+  }
 }
