@@ -7,7 +7,7 @@
 
 int main() {
   float **input_matrix = malloc_2d(S, S, 0.0);
-  float **input_kernels = malloc_2d(M, K, 0.0);
+  float **input_kernels = malloc_2d(M, K*K, 0.0);
 
   printf("Reading input matrix\n");
   read_persisted_matrix(input_matrix);

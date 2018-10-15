@@ -20,7 +20,7 @@ void print_matrix(float **matrix){
 
 void print_kernels(float **kernels){
   for(int m=0; m<10; m++) {
-    for(int k=0; k<K; k++) {
+    for(int k=0; k<K*K; k++) {
       printf("| %1.4f ", kernels[m][k]);
     }
     printf("|\n");
@@ -70,7 +70,7 @@ void persist_input_matrix() {
 }
 
 void persist_input_kernels() {
-  float **kernels_in = malloc_2d(M, K, 0.0);
+  float **kernels_in = malloc_2d(M, K*K, 0.0);
 
   FILE *output_ptr;
   int buffer_i;
@@ -78,7 +78,7 @@ void persist_input_kernels() {
 
   /* fills matrix with random float between (-1,1) */
   for(int m=0; m<M; m++){
-    for(int k=0; k<K; k++) {
+    for(int k=0; k<K*K; k++) {
       kernels_in[m][k] = random_float();
     }
   }
@@ -97,7 +97,7 @@ void persist_input_kernels() {
 
     // data
     for(int m=0; m<M; m++){
-      for(int k=0; k<K; k++) {
+      for(int k=0; k<K*K; k++) {
 	buffer_f = kernels_in[m][k];
 	fwrite(&buffer_f, sizeof(float), 1, output_ptr);
       }
@@ -145,7 +145,7 @@ void read_persisted_kernels(float **kernels_out){
   fread(&buffer_i, sizeof(int), 1, input_ptr);
 
   for(int m=0; m<M; m++){
-    for(int k=0; k<K; k++) {
+    for(int k=0; k<K*K; k++) {
       fread(&buffer_f, sizeof(float), 1, input_ptr);
       kernels_out[m][k] = buffer_f;
     }
