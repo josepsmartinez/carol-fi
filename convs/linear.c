@@ -1,27 +1,13 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "malloc2d.h"
+
 #define ImgSize 3
 #define KernelSize 3
 #define NumberOfKernels 3
 
-float inputImage[ImgSize][ImgSize]=
-{
-    {1, 2, 3},
-    {4, 5, 6},
-    {7, 8, 9}
-};
-
-float outputImage[ImgSize][ImgSize];
-
-float convKernel[KernelSize][KernelSize] =
-{
-    {0, 0, 0},
-    {0, 2, 0},
-    {0, 0, 0}
-};
-
-void simpleConvolution() {
+void simpleConvolution(float** inputImage, float** outputImage, float** convKernel) {
   int imgX = 0, imgY = 0;
 
   int kernelX = 0, kernelY = 0;
@@ -56,7 +42,7 @@ void simpleConvolution() {
     }
   }
 }
-void printImg(float image[ImgSize][ImgSize]) {
+void printImg(float** image) {
   int imgX, imgY;
   for (imgX=0; imgX<ImgSize; imgX++)
   {
@@ -70,12 +56,26 @@ void printImg(float image[ImgSize][ImgSize]) {
 }
 
 int main() {
-  int kernelNumber;
+  float **inputImage = malloc_2d(ImgSize, ImgSize, 0.0);
+  inputImage[0][0] = 1;
+  inputImage[0][1] = 2;
+  inputImage[0][2] = 3; //
+  inputImage[1][0] = 4;
+  inputImage[1][1] = 5;
+  inputImage[1][2] = 6; //
+  inputImage[2][0] = 7;
+  inputImage[2][1] = 8;
+  inputImage[2][2] = 9;
+
+  float **outputImage = malloc_2d(ImgSize, ImgSize, 0.0);
+
+  float **convKernel = malloc_2d(KernelSize, KernelSize, 0.0);
+  convKernel[1][1] = 2;
   
   printImg(inputImage);
   
-  for (kernelNumber=0; kernelNumber<NumberOfKernels; kernelNumber++){
-    simpleConvolution();
+  for (int kernelNumber=0; kernelNumber<NumberOfKernels; kernelNumber++){
+    simpleConvolution(inputImage, outputImage, convKernel);
     printImg(outputImage);
   }
 
