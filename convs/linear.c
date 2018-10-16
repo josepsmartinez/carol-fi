@@ -51,9 +51,33 @@ void printImg(float** image) {
   printf("\n");
 }
 
-int main() {
-  float **inputImage = read_persisted_matrix();
-  float **inputKernels = read_persisted_kernels();
+int main(int argc, char **argv) {
+  float **inputImage;
+  float **outputImage;
+  
+  float **inputKernels;
+  float **convKernel;
+  
+  FILE* output_file_ptr;
+  
+
+  if(argc == 4) {
+    output_file_ptr = fopen(argv[3], "w");
+    if (output_file_ptr == NULL) {
+      printf("Failed to open output file! \n");
+      return -1;
+    }
+    
+    inputImage = read_persisted_matrix(argv[1]);
+    inputKernels = read_persisted_kernels(argv[2]);
+
+    outputImage = malloc_2d(ImgSize, ImgSize, -1.0);
+    convKernel = malloc_2d(KernelSize, KernelSize, 5.0);
+  }
+  else {
+    printf("Wrong call of script! Usage is '<matrix_file, kernels_file, output_file>\n");
+    return -1;
+  }
 
   /*
   printf("Loaded input\n");
@@ -61,13 +85,12 @@ int main() {
   print_matrix(inputKernels, 10, KernelSize*KernelSize);
   */
   
-  float **convKernel = malloc_2d(KernelSize, KernelSize, 5.0);
-  float **outputImage = malloc_2d(ImgSize, ImgSize, -1.0);
+  
   
 
   
 
-  FILE* output_file_ptr = fopen("output.txt", "w");
+  
   
   for (int kernelNumber=0; kernelNumber<NumberOfKernels; kernelNumber++){
     kernel_matrix_from_line(inputKernels[kernelNumber], convKernel);

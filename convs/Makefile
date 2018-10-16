@@ -7,7 +7,7 @@ all: linear dft dft2
 clean:
 	rm *.o *.out -f
 
-# builds from data/
+# builds from data/ (does not generate input again)
 data_deps:
 	cd ../data ; make all
 
@@ -25,7 +25,8 @@ dft2: dft2.c
 run_all: clean run_linear run_dft2
 
 run_linear: linear
-	cd .. ; ./convs/linear.out ; cat output.txt | wc -l
+	./linear.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	cat output.txt | wc -l
 
 run_dft2: dft2
 	./dft2.out
