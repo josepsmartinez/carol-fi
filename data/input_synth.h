@@ -1,5 +1,5 @@
 //#define S 2048
-#define S 256
+#define S 512
 #define M 100
 #define K 3
 
