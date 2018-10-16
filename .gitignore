@@ -1,5 +1,6 @@
 # temps
 **/*~
+*.pyc
 
 # c outputs
 **/*.out
