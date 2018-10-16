@@ -163,7 +163,7 @@ int main() {
 
   complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
 
-  printf("\Filtered\n");
+  printf("\nFiltered\n");
   print_matrix(y_real, 10, 10);
   print_matrix(y_im, 10, 10);
   
