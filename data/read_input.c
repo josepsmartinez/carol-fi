@@ -10,11 +10,11 @@ int main() {
   float **input_kernels;
 
   printf("Reading input matrix\n");
-  input_matrix = read_persisted_matrix();
+  input_matrix = read_persisted_matrix("data/new_matrix.bin");
   print_matrix(input_matrix, 5, 5);
 
   printf("Reading input kernels\n");
-  input_kernels = read_persisted_kernels();
+  input_kernels = read_persisted_kernels("data/new_kernels.bin");
   print_kernels(input_kernels, 5);
 
   printf("Freeing\n");

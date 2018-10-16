@@ -14,6 +14,6 @@ void persist_input_kernels();
 void output_matrix(FILE*, float**, int, int);
 
 //READ
-float** read_persisted_matrix();
-float** read_persisted_kernels();
+float** read_persisted_matrix(char*);
+float** read_persisted_kernels(char*);
 void kernel_matrix_from_line(float *kernel_line, float **kernel_matrix);

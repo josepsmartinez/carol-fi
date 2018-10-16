@@ -120,7 +120,7 @@ void output_matrix(FILE* output_ptr, float** matrix, int n2, int n1) {
 
 
 // READ
-float** read_persisted_matrix() {
+float** read_persisted_matrix(char* matrix_file) {
   float **im_out;
   int matrix_dim;
   
@@ -128,7 +128,7 @@ float** read_persisted_matrix() {
   int buffer_i;
   float buffer_f;
 
-  input_ptr = fopen("data/new_matrix.bin", "rb");
+  input_ptr = fopen(matrix_file, "rb");
 
   if (input_ptr == NULL) {
     printf("Failed to open matrix file\n");
@@ -154,7 +154,7 @@ float** read_persisted_matrix() {
   return im_out;
 }
 
-float** read_persisted_kernels(){
+float** read_persisted_kernels(char* kernels_file){
   float **kernels_out;
   int n_kernels=0;
   int n_filter=0;
@@ -163,7 +163,7 @@ float** read_persisted_kernels(){
   int buffer_i;
   float buffer_f;
 
-  input_ptr = fopen("data/new_kernels.bin", "rb");
+  input_ptr = fopen(kernels_file, "rb");
   if (input_ptr == NULL){
     printf("Failed to open kernels file\n");
     exit(-1);
