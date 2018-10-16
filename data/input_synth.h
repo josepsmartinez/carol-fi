@@ -1,5 +1,5 @@
 //#define S 2048
-#define S 512
+#define S 256
 #define M 100
 #define K 3
 
@@ -11,7 +11,7 @@ void print_kernels(float**, int);
 float random_float();
 void persist_input_matrix();
 void persist_input_kernels();
-
+void output_matrix(FILE*, float**, int, int);
 
 //READ
 float** read_persisted_matrix();

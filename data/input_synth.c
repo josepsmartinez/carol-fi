@@ -77,7 +77,6 @@ void persist_input_kernels() {
   int buffer_i;
   float buffer_f;
 
-  /* fills matrix with random float between (-1,1) */
   for(int m=0; m<M; m++){
     for(int k=0; k<K*K; k++) {
       kernels_in[m][k] = random_float();
@@ -108,8 +107,17 @@ void persist_input_kernels() {
   // close and free
   fclose(output_ptr);
   free_2d(M, kernels_in);
-
 }
+
+void output_matrix(FILE* output_ptr, float** matrix, int n2, int n1) {
+  for(int y=0; y<n2; y++) {
+    for(int x=0; x<n1-1; x++) {
+      fprintf(output_ptr, "%f,", matrix[y][x]);
+    }
+    fprintf(output_ptr, "%f\n", matrix[y][n1-1]);
+  }
+}
+
 
 // READ
 float** read_persisted_matrix() {
@@ -120,7 +128,12 @@ float** read_persisted_matrix() {
   int buffer_i;
   float buffer_f;
 
-  input_ptr = fopen("new_matrix.bin", "rb");
+  input_ptr = fopen("data/new_matrix.bin", "rb");
+
+  if (input_ptr == NULL) {
+    printf("Failed to open matrix file\n");
+    exit(-1);
+  }
 
   // infers image size from header
   fread(&buffer_i, sizeof(int), 1, input_ptr);
@@ -150,7 +163,11 @@ float** read_persisted_kernels(){
   int buffer_i;
   float buffer_f;
 
-  input_ptr = fopen("new_kernels.bin", "rb");
+  input_ptr = fopen("data/new_kernels.bin", "rb");
+  if (input_ptr == NULL){
+    printf("Failed to open kernels file\n");
+    exit(-1);
+  }
 
   // infers how many kernels and their size from header
   fread(&buffer_i, sizeof(int), 1, input_ptr);
