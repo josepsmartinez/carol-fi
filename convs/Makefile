@@ -1,20 +1,31 @@
+DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
+
+
+#
 all: linear dft dft2
+
 clean:
 	rm *.o *.out -f
 
-#
-linear: linear.c ../data/malloc2d.o
-	gcc -I ../data/ ../data/malloc2d.o linear.c -lm -o linear.out
+# builds from data/
+data_deps:
+	cd ../data ; make all
+
+# implementations builds
+linear: linear.c data_deps
+	gcc -I ../data/ $(DATA_OBJS) linear.c -lm -o linear.out
 
 dft: dft.c
 	gcc dft.c -lm -o dft.out
 
-dft2: dft2.c ../data/malloc2d.o
-	gcc -I ../data/ ../data/malloc2d.o dft2.c -lm -o dft2.out
+dft2: dft2.c
+	gcc -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2.out
 
-#
+# implementations execution
+run_all: clean run_linear run_dft2
+
 run_linear: linear
-	./linear.out
+	cd .. ; ./convs/linear.out ; cat output.txt | wc -l
 
-run_df2: dft2
+run_dft2: dft2
 	./dft2.out
