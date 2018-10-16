@@ -3,21 +3,10 @@
 #include <math.h>
 
 #include "malloc2d.h"
+#include "input_synth.h" // yields print_matrix, S, K
 
 #define PI 3.14159265
-#define S 4 // spatial resolution (input size)
-#define K 3 // kernel size
 #define N (S+K-1)
-
-void print_matrix(float **matrix){
-  for(int y=0; y<N; y++) {
-    for(int x=0; x<N; x++) {
-      printf("| %10f ", matrix[y][x]);
-    }
-    printf("|\n");
-  }
-  printf("\n");
-}
 
 void dft2(float **in, float **out_real, float **out_im) {
   float mid_real[N][N] = {0};
@@ -154,34 +143,37 @@ int main() {
   float **y_ = malloc_2d(N, N, 0.0);
 
   printf("\nInput\n");
-  print_matrix(x);
-  print_matrix(k);
+  print_matrix(x, 10, 10);
+  print_matrix(k, 10, 10);
 
   
   // Shift filter signal
   shift2d(k, k_shifted, K);
   
   printf("\nShifted\n");
-  print_matrix(k_shifted);
+  print_matrix(k_shifted, 10, 10);
 
   
   dft2(x, x_real, x_im);
   dft2(k_shifted, k_real, k_im);
 
+  printf("\nEncoded\n");
+  print_matrix(x_real, 10, 10);
+  print_matrix(x_im, 10, 10);
+
   complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
 
-  /*
-  printf("\nEncoded\n");
-  print_matrix(x_real);
-  print_matrix(x_im);
-  */
+  printf("\Filtered\n");
+  print_matrix(y_real, 10, 10);
+  print_matrix(y_im, 10, 10);
+  
   
   idft2(x_real, x_im, x_);
   idft2(y_real, y_im, y_);
 
   printf("\nDecoded\n");
-  print_matrix(x_);
-  print_matrix(y_);
+  print_matrix(x_, 10, 10);
+  print_matrix(y_, 10, 10);
 
   // Frees allocated instances
   free_2d(N, x);
