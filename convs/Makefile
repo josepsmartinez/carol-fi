@@ -1,3 +1,4 @@
+CC = gcc -g
 DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
 
 
@@ -13,13 +14,13 @@ data_deps:
 
 # implementations builds
 linear: linear.c data_deps
-	gcc -I ../data/ $(DATA_OBJS) linear.c -lm -o linear.out
+	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear.out
 
 dft: dft.c
-	gcc dft.c -lm -o dft.out
+	$(CC) dft.c -lm -o dft.out
 
 dft2: dft2.c
-	gcc -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2.out
+	$(CC) -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2.out
 
 # implementations execution
 run_all: clean run_linear run_dft2

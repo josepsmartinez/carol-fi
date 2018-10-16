@@ -1,19 +1,24 @@
-all: generate_input read_input
+CC = gcc -g
 
-test_generation: all
-	./generate_input.out
-	./read_input.out
+all: clean generate_input read_input
+
+clean:
+	rm *.o *.out -f
+
 
 malloc2d: malloc2d.c malloc2d.h
-	gcc malloc2d.c -c
+	$(CC) malloc2d.c -c
 
 input_synth: input_synth.c input_synth.h
-	gcc input_synth.c -c
+	$(CC) input_synth.c -c
 
 generate_input: generate_input.c malloc2d input_synth
-	gcc malloc2d.o input_synth.o generate_input.c -o generate_input.out
+	$(CC) malloc2d.o input_synth.o generate_input.c -o generate_input.out
 
 read_input: read_input.c malloc2d input_synth
-	gcc malloc2d.o input_synth.o read_input.c -o read_input.out
+	$(CC) malloc2d.o input_synth.o read_input.c -o read_input.out
 
-
+#
+test_generation: all
+	./generate_input.out
+	cd .. ; ./data/read_input.out
