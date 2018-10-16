@@ -9,3 +9,6 @@
 # carol-fi output
 *.log
 logs/
+
+# quicksort specific output
+sample-code/quicksort/lastDataCreated
