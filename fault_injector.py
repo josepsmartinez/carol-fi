@@ -16,6 +16,8 @@ import uuid
 #import logging
 from curses import wrapper
 
+import compare_matrix
+
 if sys.version_info >= (3,0):
     import configparser # python 3
 else:
@@ -238,7 +240,11 @@ def checkSDCs(section):
     if not os.path.isfile(outputFile):
         logging.error("outputFile not found: "+str(outputFile))
     if os.path.isfile(goldFile) and os.path.isfile(outputFile):
-        return (not filecmp.cmp(goldFile,outputFile, shallow=False) )
+        return (not filecmp.cmp(goldFile,outputFile, shallow=False))
+    #return compare_matrix.compare_files(goldFile, outputFile, 1e-3)
+    #return True
+        
+        
     else:
         return False
 
