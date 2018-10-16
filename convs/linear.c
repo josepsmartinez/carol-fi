@@ -85,13 +85,6 @@ int main(int argc, char **argv) {
   print_matrix(inputKernels, 10, KernelSize*KernelSize);
   */
   
-  
-  
-
-  
-
-  
-  
   for (int kernelNumber=0; kernelNumber<NumberOfKernels; kernelNumber++){
     kernel_matrix_from_line(inputKernels[kernelNumber], convKernel);
 
