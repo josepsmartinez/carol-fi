@@ -16,11 +16,14 @@ data_deps:
 linear: linear.c data_deps
 	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear
 
-dft: dft.c
+fft: fft.cpp data_deps
+	g++ fft.cpp -lm -o fft
+
+dft: dft.c data_deps
 	$(CC) dft.c -lm -o dft
 
-dft2: dft2.c
-	$(CC) -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2
+dft2: dft2.c data_deps
+	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2
 
 # implementations execution
 run_all: clean run_linear run_dft2
@@ -29,5 +32,11 @@ run_linear: linear
 	./linear ../data/new_matrix.bin ../data/new_kernels.bin output.txt
 	cat output.txt | wc -l
 
+run_fft: fft
+	./fft
+
+run_dft: dft
+	./dft
+
 run_dft2: dft2
-	./dft2
+	./dft2 ../data/new_matrix.bin ../data/new_kernels.bin output.txt
