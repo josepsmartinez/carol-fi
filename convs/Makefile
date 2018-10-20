@@ -17,7 +17,7 @@ linear: linear.c data_deps
 	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear
 
 fft: fft.cpp data_deps
-	g++ fft.cpp -lm -o fft
+	g++ -I ../data/ $(DATA_OBJS) fft.cpp -lm -o fft
 
 dft: dft.c data_deps
 	$(CC) dft.c -lm -o dft
@@ -33,7 +33,7 @@ run_linear: linear
 	cat output.txt | wc -l
 
 run_fft: fft
-	./fft
+	./fft ../data/new_matrix.bin ../data/new_kernels.bin output.txt
 
 run_dft: dft
 	./dft
