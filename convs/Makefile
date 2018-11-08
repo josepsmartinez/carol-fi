@@ -6,7 +6,10 @@ DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
 all: linear dft dft2
 
 clean:
-	rm *.o -f
+	rm *.o *.out -f
+
+clean_data:
+	rm ../data/*.bin ../data/*.txt -f
 
 # builds from data/ (does not generate input again)
 data_deps:
@@ -14,29 +17,29 @@ data_deps:
 
 # implementations builds
 linear: linear.c data_deps
-	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear
+	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear.out
 
 fft: fft.cpp data_deps
-	g++ -I ../data/ $(DATA_OBJS) fft.cpp -lm -o fft
+	g++ -I ../data/ $(DATA_OBJS) fft.cpp -lm -o fft.out
 
 dft: dft.c data_deps
-	$(CC) dft.c -lm -o dft
+	$(CC) dft.c -lm -o dft.out
 
 dft2: dft2.c data_deps
-	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2
+	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2.out
 
 # implementations execution
 run_all: clean run_linear run_dft2
 
 run_linear: linear
-	./linear ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./linear.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
 	cat output.txt | wc -l
 
 run_fft: fft
-	./fft ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./fft.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
 
 run_dft: dft
-	./dft
+	./dft.out
 
 run_dft2: dft2
-	./dft2 ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./dft2.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt

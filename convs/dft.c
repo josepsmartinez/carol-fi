@@ -6,6 +6,8 @@
 #define K 3 // kernel size
 #define N (S+K-1)
 
+// NOT INJECTING FAULTS HERE!!
+
 void dft(int n_samples, float* x, float* y_real, float* y_im) {
   for(int k=0; k<n_samples; k++) {
     for (int n=0; n<n_samples; n++) {
@@ -56,7 +58,7 @@ int main () {
   float fy_real[N] = {0};
   float fy_im[N] = {0};
   float y_[N] = {0};
-   
+
 
   printf("\nInput\n");
   {
@@ -70,20 +72,22 @@ int main () {
 
   // Point-wise multiplication
   complex_mul(N, fx_real, fx_im, fk_real, fk_im, fy_real, fy_im);
-  
+
   printf("\nEncoded\n");
-  /*
+
   {
-    for(int i=0; i<N; i++) printf("F(X)_cos: %f ", fx_cos[i]); printf("\n");
-    for(int i=0; i<N; i++) printf("F(X)_sin: %f ", fx_sin[i]); printf("\n");
+    for(int i=0; i<N; i++) printf("F(X)_r: %f ", fx_real[i]); printf("\n");
+    for(int i=0; i<N; i++) printf("F(X)_i: %f ", fx_im[i]); printf("\n");
+    /*
     for(int i=0; i<N; i++) printf("F(K)_cos: %f ", fk_cos[i]); printf("\n");
     for(int i=0; i<N; i++) printf("F(K)_sin: %f ", fk_sin[i]); printf("\n");
     for(int i=0; i<N; i++) printf("F(Y)_cos: %f ", fy_cos[i]); printf("\n");
     for(int i=0; i<N; i++) printf("F(Y)_sin: %f ", fy_sin[i]); printf("\n");
+    */
 
   }
-  */
-  
+
+
   // Frequency -> Space
   idft(N, x_, fx_real, fx_im);
   idft(N, y_, fy_real, fy_im);
@@ -92,9 +96,9 @@ int main () {
     for(int i=0; i<N; i++) printf("Xf: %f ", x_[i]); printf("\n");
     for(int i=0; i<N; i++) printf("Yf: %f ", y_[i]); printf("\n");
   }
-  
-  
-  
+
+
+
   printf("\ndeix \n");
   return(0);
 }

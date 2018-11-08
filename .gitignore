@@ -2,12 +2,18 @@
 **/*~
 *.pyc
 
-# c outputs
+# gcc outputs
 **/*.out
 **/*.o
 
+# our outputs
+*.txt
+convs/*.txt
+data/*.bin
+
 # carol-fi output
 *.log
+logs
 logs/
 
 # quicksort specific output

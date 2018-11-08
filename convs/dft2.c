@@ -11,13 +11,13 @@
 void dft2(float **in, float **out_real, float **out_im) {
   float mid_real[N][N] = {0};
   float mid_im[N][N] = {0} ;
-  
+
   // rows first
   for(int y=0; y<N; y++) {
     for(int k=0; k<N; k++) {
       for(int n=0; n<N; n++) {
-	mid_real[y][k] += in[y][n] * cos(2*PI*k*n/N);
-	mid_im[y][k] -= in[y][n] * sin(2*PI*k*n/N);
+	      mid_real[y][k] += in[y][n] * cos(2*PI*k*n/N);
+	      mid_im[y][k] -= in[y][n] * sin(2*PI*k*n/N);
       }
     }
   }
@@ -83,8 +83,8 @@ void shift2d(float** in, float **out, int limit) {
   int mean_point = limit/2;
 
   // 3 -> 1
-  for(int i=mean_point; i<limit; i++) 
-    for(int j=mean_point; j<limit; j++) 
+  for(int i=mean_point; i<limit; i++)
+    for(int j=mean_point; j<limit; j++)
       out[i-mean_point][j-mean_point] = in[i][j];
 
   // 1 -> 3
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
   FILE* output_file_ptr;
   float **input_matrix;
   float **input_kernels;
-  
+
   // Input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
   float **x;
   float **x_real;
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 
   // Reads input
   input_matrix = read_persisted_matrix(argv[1]);
-    
+
   input_kernels = read_persisted_kernels(argv[2]);
 
   // Allocates (a lot of) memory
@@ -165,18 +165,18 @@ int main(int argc, char **argv) {
     for(int ix=0; ix<S; ix++)
       x[y][ix] = input_matrix[y][ix];
 
-  
+
   // Multiple convolutions
   int verbose = 0;
-  
+
   for(int m=0; m<M; m++) {
     // Fills input filter (implicit zero-padding again)
     kernel_matrix_from_line(input_kernels[m], k);
 
     if (verbose>0) {
-	printf("\nInput\n");
-	print_matrix(x, 10, 10);
-	print_matrix(k, K, K);
+	    printf("\nInput\n");
+	    print_matrix(x, 10, 10);
+	    print_matrix(k, K, K);
     }
 
     // Shift filter signal
@@ -217,11 +217,11 @@ int main(int argc, char **argv) {
 
     output_matrix(output_file_ptr, y_, S, S);
   }
-  
+
   // Frees allocated instances
   free_2d(S, input_matrix); // try with N
   free_2d(M, input_kernels);
-  
+
   free_2d(N, x);
   free_2d(N, x_im);
   free_2d(N, x_real);
@@ -239,5 +239,5 @@ int main(int argc, char **argv) {
   fclose(output_file_ptr);
 
   return 0;
- 
+
 }
