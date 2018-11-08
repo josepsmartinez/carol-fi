@@ -16,8 +16,6 @@ import uuid
 #import logging
 from curses import wrapper
 
-import compare_matrix
-
 if sys.version_info >= (3,0):
     import configparser # python 3
 else:
@@ -33,6 +31,7 @@ except ImportError:
 VERSION = "1.1"
 
 ### Global variables
+detectLogFile = ''
 uniqueID = str(uuid.uuid4())
 gdbFIlogFile = "/tmp/carolfi-"+uniqueID+".log"
 summFIlogFile = "summary-carolfi.log"
@@ -43,12 +42,12 @@ else:
 
 
 # Counters to keep track of fault effects so we can show them to the user
-faults = {"masked": 0, "sdc": 0, "crash": 0, "hang": 0, "noOutput": 0, "failed": 0}
+faults = {"masked": 0, "sdc": 0, "crash": 0, "hang": 0, "noOutput": 0, "failed": 0, "detected": 0}
 
 status = ""
 
 # The number of threads that will stop the target program at a random time (each stop is a fault injection tentative)
-# Fault injections tentatives are not always successful, that is why we need to do it more than once. 
+# Fault injections tentatives are not always successful, that is why we need to do it more than once.
 # However, only one fault can be injected
 numThreadsFI=3
 
@@ -115,7 +114,7 @@ class runGDB (threading.Thread):
         startCmd = conf.get(self.section,"gdbExecName")+" --nh --nx -q -batch-silent --return-child-result -x "+"/tmp/flip-"+uniqueID+".py > /dev/null 2> /dev/null &"
         os.system(startCmd)
 
-# Check if app stops execution (otherwise kill it after a time) 
+# Check if app stops execution (otherwise kill it after a time)
 def finish(section):
     isHang = False
     now = int(time.time())
@@ -172,6 +171,10 @@ def saveOutput(section, isHang):
         fp.close()
 
     isOutput = checkIsOutput(section)
+    if os.path.isfile(detectLogFile):
+        isDetected = True
+    else:
+        isDetected = False
 
     dt = datetime.datetime.fromtimestamp(time.time())
     ymd = dt.strftime('%Y_%m_%d')
@@ -194,6 +197,10 @@ def saveOutput(section, isHang):
         cpDir = os.path.join('logs',section,'noOutputGenerated',dirDT)
         logging.summary(section+" - NoOutputGenerated")
         faults["noOutput"] += 1
+    elif isDetected:
+        cpDir = os.path.join('logs',section,'sdcs-detected',dirDT)
+        logging.summary(section+" - SDC Detected")
+        faults["detected"] += 1
     else:
         # Check output files for SDCs
         isSDC = checkSDCs(section)
@@ -211,7 +218,9 @@ def saveOutput(section, isHang):
 
     shutil.move(flipLogFile, cpDir)
     shutil.move(gdbFIlogFile, cpDir)
-    if isSDC:
+    if os.path.isfile(detectLogFile):
+        shutil.move(detectLogFile, cpDir)
+    if isSDC or isDetected:
         shutil.move(outputFile, cpDir)
 
 
@@ -243,8 +252,8 @@ def checkSDCs(section):
         return (not filecmp.cmp(goldFile,outputFile, shallow=False))
     #return compare_matrix.compare_files(goldFile, outputFile, 1e-3)
     #return True
-        
-        
+
+
     else:
         return False
 
@@ -264,6 +273,9 @@ def runGDBFaultInjection(section):
 
     # Generate python script for GDB
     genFlipScript(section)
+
+    # Make sure there is not detection log left before execution
+    os.system("rm -f "+detectLogFile)
 
     # Run pre execution function
     preExecution(section)
@@ -360,20 +372,25 @@ def main(stdscr):
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--conf', dest="configFile", help='Configuration file', required=True)
     parser.add_argument('-i', '--iter', dest="iterations", help='How many times to repeat the programs in the configuration file', required=True, type=int)
-    
+    parser.add_argument('-d', '--detect', dest="detectLog", help='Detection Log File. If this file exists after execution, a successful SDC detection will be assumed', required=False, default='')
+    #parser.add_argument('-m', '--model', dest="model", help='Fault injection model; all will randomly choose one fault model', required=False, choices=('single', 'double', 'random', 'zeros', 'lsb', 'all'), default='all')
+
     args = parser.parse_args()
     if args.iterations < 1:
         parser.error('Iterations must be greater than zero')
-    
+
     checkmd5()
-    
+
     # Start with a different seed every time to vary the random numbers generated
     random.seed() # the seed will be the current number of second since 01/01/70
-    
+
     # Read the configuration file with data for all the apps that will be executed
     conf.read(args.configFile)
-    
-    
+
+    # Set the duplication detection log
+    global detectLogFile
+    detectLogFile = args.detectLog
+
     try:
 
         avgRoundTime = 0
@@ -411,4 +428,3 @@ if __name__ == "__main__":
     #main()
     wrapper(main) # ncurses
     print (status)
-
