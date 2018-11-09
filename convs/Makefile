@@ -1,5 +1,7 @@
 CC = gcc -g
+CC_FLAGS = -fopenmp
 DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
+CC_LIBS = -lm
 
 
 #
@@ -17,22 +19,22 @@ data_deps:
 
 # implementations builds
 linear: linear.c data_deps
-	$(CC) -I ../data/ $(DATA_OBJS) linear.c -lm -o linear.out
+	$(CC) $(CC_FLAGS) -I ../data/ $(DATA_OBJS) linear.c $(CC_LIBS) -o linear.out
 
 fft: fft.cpp data_deps
-	g++ -I ../data/ $(DATA_OBJS) fft.cpp -lm -o fft.out
+	g++ -I ../data/ $(DATA_OBJS) fft.cpp $(CC_LIBS) -o fft.out
 
 dft: dft.c data_deps
-	$(CC) dft.c -lm -o dft.out
+	$(CC) $(CC_FLAGS) dft.c $(CC_LIBS) -o dft.out
 
 dft2: dft2.c data_deps
-	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c -lm -o dft2.out
+	$(CC) $(CC_FLAGS) -O3 -I ../data/ $(DATA_OBJS) dft2.c $(CC_LIBS) -o dft2.out
 
 # implementations execution
 run_all: clean run_linear run_dft2
 
 run_linear: linear
-	./linear.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./linear.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
 	cat output.txt | wc -l
 
 run_fft: fft
