@@ -102,12 +102,20 @@ void shift2d(float** in, float **out, int limit) {
       out[i+mean_point+1][j-mean_point] = in[i][j];
 }
 
-int main(int argc, char **argv) {
-  // IO buffers
-  FILE* output_file_ptr;
-  float **input_matrix;
-  float **input_kernels;
+int compare_output(float** image1, float** image2, char* detect_ptr_file) {
+  FILE* fp;
+  int imgX, imgY;
 
+  for (imgX=0; imgX<S; imgX++)
+    for(imgY=0; imgY<S; imgY++)
+      if (image1[imgX][imgY] != image2[imgX][imgY])
+      if (fp = fopen(detect_ptr_file, "a")) {
+        fprintf(fp, "[%d, %d]: %f %f\n", imgX, imgY, image1[imgX][imgY],image2[imgX][imgY]);
+        fclose(fp);
+      }
+}
+
+void conv_wrapper(float **input_matrix, float **input_kernels, float **y_) {
   // Input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
   float **x;
   float **x_real;
@@ -121,29 +129,12 @@ int main(int argc, char **argv) {
   float **k_real;
   float **k_im;
 
-
-  // Filter output (vectors for convolution output as frequency coefficientes, reversed spatial data as final output)
+  // Filter output (vectors for convolution output as frequency coefficients, reversed spatial data as final output)
   float **y_real;
   float **y_im;
-  float **y_;
 
-  // Checks for correction in arguments
-  if(argc == 4) {
-    output_file_ptr = fopen(argv[3], "w");
-    if (output_file_ptr == NULL) {
-      printf("Failed to open output file! \n");
-      return -1;
-    }
-  }
-  else {
-    printf("Wrong call of script! Usage is '<matrix_file, kernels_file, output_file>\n");
-    return -1;
-  }
 
-  // Reads input
-  input_matrix = read_persisted_matrix(argv[1]);
 
-  input_kernels = read_persisted_kernels(argv[2]);
 
   // Allocates (a lot of) memory
   x = malloc_2d(N, N, 0.0);
@@ -158,7 +149,7 @@ int main(int argc, char **argv) {
 
   y_real = malloc_2d(N, N, 0.0);
   y_im = malloc_2d(N, N, 0.0);
-  y_ = malloc_2d(N, N, 0.0);
+
 
   // Fills input matrix (implicit zero-padding)
   for (int y=0; y<S; y++)
@@ -215,13 +206,10 @@ int main(int argc, char **argv) {
       print_matrix(y_, 10, 10);
     }
 
-    output_matrix(output_file_ptr, y_, S, S);
+
   }
 
-  // Frees allocated instances
-  free_2d(S, input_matrix); // try with N
-  free_2d(M, input_kernels);
-
+  // Frees
   free_2d(N, x);
   free_2d(N, x_im);
   free_2d(N, x_real);
@@ -234,7 +222,54 @@ int main(int argc, char **argv) {
 
   free_2d(N, y_im);
   free_2d(N, y_real);
-  free_2d(N, y_);
+
+
+}
+
+int main(int argc, char **argv) {
+  // IO buffers
+  FILE* output_file_ptr;
+
+  float **input_matrix;
+  float **input_kernels;
+
+  float **y_1, **y_2;
+
+  // Checks for correction in arguments
+  if(argc == 5) {
+    output_file_ptr = fopen(argv[3], "w");
+    if (output_file_ptr == NULL) {
+      printf("Failed to open output file! \n");
+      return -1;
+    }
+  }
+  else {
+    printf("Wrong call of script! Usage is '<matrix_file, kernels_file, output_file, detection_file>\n");
+    return -1;
+  }
+
+  // Reads input
+  input_matrix = read_persisted_matrix(argv[1]);
+  input_kernels = read_persisted_kernels(argv[2]);
+
+  // Allocates output
+  y_1 = malloc_2d(N, N, 0.0);
+  y_2 = malloc_2d(N, N, 0.0);
+
+  // Op
+  conv_wrapper(input_matrix, input_kernels, y_1);
+  conv_wrapper(input_matrix, input_kernels, y_2);
+
+  compare_output(y_1, y_2, argv[4]);
+
+  output_matrix(output_file_ptr, y_1, S, S);
+
+
+  // Frees allocated instances
+  free_2d(S, input_matrix); // try with N
+  free_2d(M, input_kernels);
+  free_2d(N, y_1);
+  free_2d(N, y_2);
 
   fclose(output_file_ptr);
 

@@ -28,7 +28,7 @@ dft: dft.c data_deps
 	$(CC) $(CC_FLAGS) dft.c $(CC_LIBS) -o dft.out
 
 dft2: dft2.c data_deps
-	$(CC) $(CC_FLAGS) -O3 -I ../data/ $(DATA_OBJS) dft2.c $(CC_LIBS) -o dft2.out
+	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c $(CC_LIBS) -o dft2.out
 
 # implementations execution
 run_all: clean run_linear run_dft2
@@ -38,10 +38,10 @@ run_linear: linear
 	cat output.txt | wc -l
 
 run_fft: fft
-	./fft.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./fft.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
 
 run_dft: dft
 	./dft.out
 
 run_dft2: dft2
-	./dft2.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt
+	./dft2.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
