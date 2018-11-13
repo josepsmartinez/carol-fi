@@ -110,11 +110,12 @@ void persist_input_kernels() {
 }
 
 void output_matrix(FILE* output_ptr, float** matrix, int n2, int n1) {
+  float buffer_f;
   for(int y=0; y<n2; y++) {
-    for(int x=0; x<n1-1; x++) {
-      fprintf(output_ptr, "%f,", matrix[y][x]);
+    for(int x=0; x<n1; x++) {
+      buffer_f = matrix[y][x];
+      fwrite(&buffer_f, sizeof(float), 1, output_ptr);
     }
-    fprintf(output_ptr, "%f\n", matrix[y][n1-1]);
   }
 }
 
