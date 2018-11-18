@@ -98,8 +98,8 @@ void persist_input_kernels() {
     // data
     for(int m=0; m<M; m++){
       for(int k=0; k<K*K; k++) {
-	buffer_f = kernels_in[m][k];
-	fwrite(&buffer_f, sizeof(float), 1, output_ptr);
+	       buffer_f = kernels_in[m][k];
+	       fwrite(&buffer_f, sizeof(float), 1, output_ptr);
       }
     }
   }

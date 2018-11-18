@@ -17,6 +17,9 @@ clean_data:
 data_deps:
 	cd ../data ; make all
 
+reset_data: data_deps
+	cd ../data ; make reset_data
+
 # implementations builds
 linear: linear.c data_deps
 	$(CC) $(CC_FLAGS) -I ../data/ $(DATA_OBJS) linear.c $(CC_LIBS) -o linear.out
@@ -38,10 +41,10 @@ run_linear: linear
 	cat output.txt | wc -l
 
 run_fft: fft
-	./fft.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
+	/usr/bin/time -vo fft.log ./fft.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
 
 run_dft: dft
 	./dft.out
 
 run_dft2: dft2
-	./dft2.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
+	/usr/bin/time -vo dft2.log ./dft2.out ../data/new_matrix.bin ../data/new_kernels.bin output.txt detection.txt
