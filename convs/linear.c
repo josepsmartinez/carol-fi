@@ -1,8 +1,6 @@
 #include <time.h>
 #include <stdio.h>
 
-#include <omp.h>
-
 #include "malloc2d.h"
 #include "input_synth.h"
 
@@ -54,7 +52,7 @@ void printImg(float** image) {
   printf("\n");
 }
 
-int compare_output(float** image1, float** image2, char* detect_ptr_file) {
+void compare_output(float** image1, float** image2, char* detect_ptr_file) {
   FILE* fp;
   int imgX, imgY;
 
@@ -98,32 +96,14 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  omp_set_num_threads(NumberOfThreads);
-
   for (int kernelNumber=0; kernelNumber<NumberOfKernels; kernelNumber++){
     kernel_matrix_from_line(inputKernels[kernelNumber], convKernel);
 
-    #pragma omp parallel
-    {
-      #pragma omp single
-      #pragma omp task
-      {
-        #pragma omp parallel
-        #pragma omp single
-        simpleConvolution(inputImage, outputImage1, convKernel);
-      }
-    }
-    {
-      #pragma omp single
-      #pragma omp task
-      {
-        #pragma omp parallel
-        #pragma omp single
-        simpleConvolution(inputImage, outputImage2, convKernel);
-      }
-    }
 
-    #pragma omp taskwait
+    simpleConvolution(inputImage, outputImage1, convKernel);
+
+    simpleConvolution(inputImage, outputImage2, convKernel);
+
 
     compare_output(outputImage1, outputImage2, argv[4]);
 

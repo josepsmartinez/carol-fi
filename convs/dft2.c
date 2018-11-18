@@ -102,7 +102,7 @@ void shift2d(float** in, float **out, int limit) {
       out[i+mean_point+1][j-mean_point] = in[i][j];
 }
 
-int compare_output(float** image1, float** image2, char* detect_ptr_file) {
+void compare_output(float** image1, float** image2, char* detect_ptr_file) {
   FILE* fp;
   int imgX, imgY;
 
@@ -115,7 +115,7 @@ int compare_output(float** image1, float** image2, char* detect_ptr_file) {
       }
 }
 
-void conv_wrapper(float **input_matrix, float **input_kernels, float **y_) {
+void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
   // Input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
   float **x;
   float **x_real;
@@ -156,57 +156,52 @@ void conv_wrapper(float **input_matrix, float **input_kernels, float **y_) {
     for(int ix=0; ix<S; ix++)
       x[y][ix] = input_matrix[y][ix];
 
+  // Fills input filter (implicit zero-padding again)
+  kernel_matrix_from_line(input_kernel, k);
 
-  // Multiple convolutions
+
   int verbose = 0;
 
-  for(int m=0; m<M; m++) {
-    // Fills input filter (implicit zero-padding again)
-    kernel_matrix_from_line(input_kernels[m], k);
+  if (verbose>0) {
+    printf("\nInput\n");
+    print_matrix(x, 10, 10);
+    print_matrix(k, K, K);
+  }
 
-    if (verbose>0) {
-	    printf("\nInput\n");
-	    print_matrix(x, 10, 10);
-	    print_matrix(k, K, K);
-    }
+  // Shift filter signal
+  shift2d(k, k_shifted, K);
 
-    // Shift filter signal
-    shift2d(k, k_shifted, K);
-
-    if (verbose>0) {
-      printf("\nShifted\n");
-      print_matrix(k_shifted, 10, 10);
-    }
+  if (verbose>0) {
+    printf("\nShifted\n");
+    print_matrix(k_shifted, 10, 10);
+  }
 
 
-    dft2(x, x_real, x_im);
-    dft2(k_shifted, k_real, k_im);
+  dft2(x, x_real, x_im);
+  dft2(k_shifted, k_real, k_im);
 
-    if (verbose>1) {
-      printf("\nEncoded\n");
-      print_matrix(x_real, 10, 10);
-      print_matrix(x_im, 10, 10);
-    }
+  if (verbose>1) {
+    printf("\nEncoded\n");
+    print_matrix(x_real, 10, 10);
+    print_matrix(x_im, 10, 10);
+  }
 
-    complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
+  complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
 
-    if (verbose>1) {
-      printf("\nFiltered\n");
-      print_matrix(y_real, 10, 10);
-      print_matrix(y_im, 10, 10);
-    }
-
-
-    idft2(x_real, x_im, x_);
-    idft2(y_real, y_im, y_);
-
-    if (verbose>0) {
-      printf("\nDecoded\n");
-      print_matrix(x_, 10, 10);
-      print_matrix(y_, 10, 10);
-    }
+  if (verbose>1) {
+    printf("\nFiltered\n");
+    print_matrix(y_real, 10, 10);
+    print_matrix(y_im, 10, 10);
+  }
 
 
+  idft2(x_real, x_im, x_);
+  idft2(y_real, y_im, y_);
+
+  if (verbose>0) {
+    printf("\nDecoded\n");
+    print_matrix(x_, 10, 10);
+    print_matrix(y_, 10, 10);
   }
 
   // Frees
@@ -257,12 +252,18 @@ int main(int argc, char **argv) {
   y_2 = malloc_2d(N, N, 0.0);
 
   // Op
-  conv_wrapper(input_matrix, input_kernels, y_1);
-  conv_wrapper(input_matrix, input_kernels, y_2);
+  for (int m=0; m < M; m++) {
 
-  compare_output(y_1, y_2, argv[4]);
 
-  output_matrix(output_file_ptr, y_1, S, S);
+    conv_wrapper(input_matrix, input_kernels[m], y_1);
+    conv_wrapper(input_matrix, input_kernels[m], y_2);
+
+    compare_output(y_1, y_2, argv[4]);
+
+    output_matrix(output_file_ptr, y_1, S, S);
+  }
+
+
 
 
   // Frees allocated instances

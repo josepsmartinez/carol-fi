@@ -1,5 +1,5 @@
-CC = gcc -g
-CC_FLAGS = -fopenmp
+CC = gcc
+CC_FLAGS = -g
 DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
 CC_LIBS = -lm
 
@@ -22,7 +22,7 @@ linear: linear.c data_deps
 	$(CC) $(CC_FLAGS) -I ../data/ $(DATA_OBJS) linear.c $(CC_LIBS) -o linear.out
 
 fft: fft.cpp data_deps
-	g++ -I ../data/ $(DATA_OBJS) fft.cpp $(CC_LIBS) -o fft.out
+	g++ $(CC_FLAGS) -I ../data/ $(DATA_OBJS) fft.cpp $(CC_LIBS) -o fft.out
 
 dft: dft.c data_deps
 	$(CC) $(CC_FLAGS) dft.c $(CC_LIBS) -o dft.out
