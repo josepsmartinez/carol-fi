@@ -1,6 +1,6 @@
-#define S 512
+#define S 256
 #define K 3
-#define M 100
+#define M 256
 
 // VISUALIZATION
 void print_matrix(float**, int, int);

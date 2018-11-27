@@ -1,6 +1,6 @@
 CC = gcc
-CC_FLAGS = -g
-DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o
+CC_FLAGS = -g -O0
+DATA_OBJS = ../data/malloc2d.o ../data/input_synth.o ../data/carolfi_output.o
 CC_LIBS = -lm
 
 
@@ -17,7 +17,7 @@ clean_data:
 data_deps:
 	cd ../data ; make all
 
-reset_data: data_deps
+reset_data: clean_data data_deps
 	cd ../data ; make reset_data
 
 # implementations builds
