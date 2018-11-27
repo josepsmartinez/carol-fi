@@ -1,6 +1,6 @@
 CC = gcc -g
 
-all: clean generate_input read_input
+all: clean generate_input read_input carolfi_output
 
 clean:
 	rm *.o *.out -f
@@ -20,6 +20,9 @@ generate_input: generate_input.c malloc2d input_synth
 
 read_input: read_input.c malloc2d input_synth
 	$(CC) malloc2d.o input_synth.o read_input.c -o read_input.out
+
+carolfi_output: carolfi_output.h carolfi_output.c
+	$(CC) carolfi_output.c -c
 
 #
 reset_data: all
