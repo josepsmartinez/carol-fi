@@ -4,6 +4,7 @@
 
 #include "malloc2d.h"
 #include "input_synth.h" // yields print_matrix, S, K
+#include "carolfi_output.h"
 
 #define N (S+K-1)
 #define PI 3.14159265
@@ -79,40 +80,28 @@ void complex_mul2(float **a_real, float **a_im, float **b_real, float **b_im, fl
   }
 }
 
-void shift2d(float** in, float **out, int limit) {
-  int mean_point = limit/2;
+void shift2d(float** in, float **out, int limit_in, int limit_out) {
+  int mean_point = limit_in/2;
+  int size_diff = limit_out - limit_in;
 
   // 3 -> 1
-  for(int i=mean_point; i<limit; i++)
-    for(int j=mean_point; j<limit; j++)
+  for(int i=mean_point; i<limit_in; i++)
+    for(int j=mean_point; j<limit_in; j++)
       out[i-mean_point][j-mean_point] = in[i][j];
 
   // 1 -> 3
   for(int i=0; i<mean_point; i++)
     for(int j=0; j<mean_point; j++)
-      out[i+mean_point+1][j+mean_point+1] = in[i][j];
+      out[i+mean_point+size_diff+1][j+mean_point+size_diff+1] = in[i][j];
 
   // ...
-  for(int i=mean_point; i<limit; i++)
+  for(int i=mean_point; i<limit_in; i++)
     for(int j=0; j<mean_point; j++)
-      out[i-mean_point][j+mean_point+1] = in[i][j];
+      out[i-mean_point][j+mean_point+size_diff+1] = in[i][j];
 
   for(int i=0; i<mean_point; i++)
-    for(int j=mean_point; j<limit; j++)
-      out[i+mean_point+1][j-mean_point] = in[i][j];
-}
-
-void compare_output(float** image1, float** image2, char* detect_ptr_file) {
-  FILE* fp;
-  int imgX, imgY;
-
-  for (imgX=0; imgX<S; imgX++)
-    for(imgY=0; imgY<S; imgY++)
-      if (image1[imgX][imgY] != image2[imgX][imgY])
-      if (fp = fopen(detect_ptr_file, "a")) {
-        fprintf(fp, "[%d, %d]: %f %f\n", imgX, imgY, image1[imgX][imgY],image2[imgX][imgY]);
-        fclose(fp);
-      }
+    for(int j=mean_point; j<limit_in; j++)
+      out[i+mean_point+size_diff+1][j-mean_point] = in[i][j];
 }
 
 void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
@@ -133,7 +122,7 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
   float **y_real;
   float **y_im;
 
-
+  int verbose = 0;
 
 
   // Allocates (a lot of) memory
@@ -160,20 +149,22 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
   kernel_matrix_from_line(input_kernel, k);
 
 
-  int verbose = 0;
+
 
   if (verbose>0) {
-    printf("\nInput\n");
+    printf("\nInput matrix\n");
     print_matrix(x, 10, 10);
+    printf("\nInput kernel\n");
     print_matrix(k, K, K);
   }
 
+
   // Shift filter signal
-  shift2d(k, k_shifted, K);
+  shift2d(k, k_shifted, K, N);
 
   if (verbose>0) {
-    printf("\nShifted\n");
-    print_matrix(k_shifted, 10, 10);
+    printf("\nShifted kernel\n");
+    print_matrix(k_shifted, N, 10);
   }
 
 
@@ -258,7 +249,7 @@ int main(int argc, char **argv) {
     conv_wrapper(input_matrix, input_kernels[m], y_1);
     conv_wrapper(input_matrix, input_kernels[m], y_2);
 
-    compare_output(y_1, y_2, argv[4]);
+    compare_output(y_1, y_2, argv[4], S);
 
     output_matrix(output_file_ptr, y_1, S, S);
   }

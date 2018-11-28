@@ -31,7 +31,7 @@ dft: dft.c data_deps
 	$(CC) $(CC_FLAGS) dft.c $(CC_LIBS) -o dft.out
 
 dft2: dft2.c data_deps
-	$(CC) -O3 -I ../data/ $(DATA_OBJS) dft2.c $(CC_LIBS) -o dft2.out
+	$(CC) $(CC_FLAGS) -I ../data/ $(DATA_OBJS) dft2.c $(CC_LIBS) -o dft2.out
 
 # implementations execution
 run_all: clean run_linear run_dft2
