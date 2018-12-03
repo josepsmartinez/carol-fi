@@ -185,13 +185,16 @@ void output_line(FILE* output_ptr, CArray line, int size, int verbosity) {
 }
 
 
-void conv_wrapper(CArray& raw_input, CArray& raw_kernel, CArray& output, FILE* output_file_ptr, int do_output) {
-  CArray input(0.0, N);
+void conv_wrapper(CArray& raw_input, CArray& raw_kernel, CArray& output, char* detection_file, FILE* output_file_ptr) {
+  CArray input1(0.0, N);
+  CArray input2(0.0, N);
   CArray filter(0.0, N);
 
   // Buffers input
-  for (int i=0; i<N; i++)
-    input[i] = raw_input[i];
+  for (int i=0; i<N; i++){
+    input1[i] = raw_input[i];
+    input2[i] = raw_input[i];
+  }
 
   // copy persisted kernel into filter buffer (zeroes and shifts)
   for(int k=0; k<N; k++)
@@ -201,13 +204,17 @@ void conv_wrapper(CArray& raw_input, CArray& raw_kernel, CArray& output, FILE* o
   for(int k=K/2; k<K; k++)
     filter[k - K/2] = raw_kernel[k];
 
-  // forward fft
-  fft(input);
+  // duplicate forward fft
+  fft(input1);
+  fft(input2);
+
+  compare_output(input1, input2, detection_file, S);
+
   fft(filter);
 
   // multiplication
   for (int i=0; i<N; ++i) {
-    output[i] = input[i] * filter[i];
+    output[i] = input1[i] * filter[i];
   }
 
   // inverse fft
@@ -215,8 +222,7 @@ void conv_wrapper(CArray& raw_input, CArray& raw_kernel, CArray& output, FILE* o
   //ifft(filter);
   ifft(output);
 
-  if (do_output)
-    output_line(output_file_ptr, output, S, 0);
+  output_line(output_file_ptr, output, S, 0);
 }
 
 int main(int argc, char **argv)
@@ -233,8 +239,7 @@ int main(int argc, char **argv)
   KernelsArray kernels(M);
 
 
-  CArray output1(0.0, N);
-  CArray output2(0.0, N);
+  CArray output(0.0, N);
 
 
 
@@ -255,11 +260,8 @@ int main(int argc, char **argv)
   read_persisted_kernels(kernels, kernels_file);
 
   for (int m=0; m<M; m++) {
-    conv_wrapper(raw_input, kernels[m], output1, output_file_ptr, 1);
-    conv_wrapper(raw_input, kernels[m], output2, output_file_ptr, 0);
+    conv_wrapper(raw_input, kernels[m], output, argv[4], output_file_ptr);
 
-
-    compare_output(output1, output2, argv[4], S);
   }
 
 
