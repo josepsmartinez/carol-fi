@@ -104,11 +104,11 @@ void shift2d(float** in, float **out, int limit_in, int limit_out) {
       out[i+mean_point+size_diff+1][j-mean_point] = in[i][j];
 }
 
-void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
+void conv_wrapper(float **input_matrix, float *input_kernel, float **y_, char* detection_file) {
   // Input signal (spatial data, vectors for frequency coefficients, reversed spatial data)
-  float **x;
-  float **x_real;
-  float **x_im;
+  float **x1, **x2;
+  float **x1_real, **x2_real;
+  float **x1_im, **x2_im;
   float **x_;
 
 
@@ -126,10 +126,14 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
 
 
   // Allocates (a lot of) memory
-  x = malloc_2d(N, N, 0.0);
-  x_real = malloc_2d(N, N, 0.0);
-  x_im = malloc_2d(N, N, 0.0);
+  x1 = malloc_2d(N, N, 0.0);
+  x1_real = malloc_2d(N, N, 0.0);
+  x1_im = malloc_2d(N, N, 0.0);
   x_ = malloc_2d(N, N, 0.0);
+
+  x2 = malloc_2d(N, N, 0.0);
+  x2_real = malloc_2d(N, N, 0.0);
+  x2_im = malloc_2d(N, N, 0.0);
 
   k = malloc_2d(N, N, 0.0);
   k_shifted = malloc_2d(N, N, 0.0);
@@ -142,8 +146,10 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
 
   // Fills input matrix (implicit zero-padding)
   for (int y=0; y<S; y++)
-    for(int ix=0; ix<S; ix++)
-      x[y][ix] = input_matrix[y][ix];
+    for(int ix=0; ix<S; ix++) {
+      x1[y][ix] = input_matrix[y][ix];
+      x2[y][ix] = input_matrix[y][ix];
+    }
 
   // Fills input filter (implicit zero-padding again)
   kernel_matrix_from_line(input_kernel, k);
@@ -153,7 +159,8 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
 
   if (verbose>0) {
     printf("\nInput matrix\n");
-    print_matrix(x, 10, 10);
+    print_matrix(x1, 10, 10);
+    print_matrix(x2, 10, 10);
     printf("\nInput kernel\n");
     print_matrix(k, K, K);
   }
@@ -167,17 +174,21 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
     print_matrix(k_shifted, N, 10);
   }
 
+  dft2(x1, x1_real, x1_im);
+  dft2(x2, x2_real, x2_im);
 
-  dft2(x, x_real, x_im);
+  compare_output(x1_real, x2_real, detection_file, S);
+  compare_output(x1_im, x2_im, detection_file, S);
+
   dft2(k_shifted, k_real, k_im);
 
   if (verbose>1) {
     printf("\nEncoded\n");
-    print_matrix(x_real, 10, 10);
-    print_matrix(x_im, 10, 10);
+    print_matrix(x1_real, 10, 10);
+    print_matrix(x1_im, 10, 10);
   }
 
-  complex_mul2(x_real, x_im, k_real, k_im, y_real, y_im);
+  complex_mul2(x1_real, x1_im, k_real, k_im, y_real, y_im);
 
   if (verbose>1) {
     printf("\nFiltered\n");
@@ -186,7 +197,7 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
   }
 
 
-  idft2(x_real, x_im, x_);
+  idft2(x1_real, x1_im, x_);
   idft2(y_real, y_im, y_);
 
   if (verbose>0) {
@@ -196,10 +207,14 @@ void conv_wrapper(float **input_matrix, float *input_kernel, float **y_) {
   }
 
   // Frees
-  free_2d(N, x);
-  free_2d(N, x_im);
-  free_2d(N, x_real);
+  free_2d(N, x1);
+  free_2d(N, x1_im);
+  free_2d(N, x1_real);
   free_2d(N, x_);
+
+  free_2d(N, x2);
+  free_2d(N, x2_im);
+  free_2d(N, x2_real);
 
   free_2d(N, k);
   free_2d(N, k_shifted);
@@ -219,7 +234,7 @@ int main(int argc, char **argv) {
   float **input_matrix;
   float **input_kernels;
 
-  float **y_1, **y_2;
+  float **y;
 
   // Checks for correction in arguments
   if(argc == 5) {
@@ -239,19 +254,14 @@ int main(int argc, char **argv) {
   input_kernels = read_persisted_kernels(argv[2]);
 
   // Allocates output
-  y_1 = malloc_2d(N, N, 0.0);
-  y_2 = malloc_2d(N, N, 0.0);
+  y = malloc_2d(N, N, 0.0);
 
   // Op
   for (int m=0; m < M; m++) {
 
 
-    conv_wrapper(input_matrix, input_kernels[m], y_1);
-    conv_wrapper(input_matrix, input_kernels[m], y_2);
+    conv_wrapper(input_matrix, input_kernels[m], y, argv[4]);
 
-    compare_output(y_1, y_2, argv[4], S);
-
-    output_matrix(output_file_ptr, y_1, S, S);
   }
 
 
@@ -260,8 +270,7 @@ int main(int argc, char **argv) {
   // Frees allocated instances
   free_2d(S, input_matrix); // try with N
   free_2d(M, input_kernels);
-  free_2d(N, y_1);
-  free_2d(N, y_2);
+  free_2d(N, y);
 
   fclose(output_file_ptr);
 
