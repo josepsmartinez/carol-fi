@@ -108,26 +108,6 @@ void compare_output(CArray& line1, CArray& line2, char* detect_ptr_file, int lin
 }
 
 
-/*
-int compare_output(CArray& line1, CArray& line2, char* detect_ptr_file) {
-  FILE* fp;
-  int i;
-
-  char val1[50];
-  char val2[50];
-
-  for (i=0; i<S; i++)
-
-      if (isnan((line1[i].real())) ||
-          isnan((line2[i].real())) ||
-          ((float)line1[i].real() != (float)line2[i].real()))
-        if (fp = fopen(detect_ptr_file, "a")) {
-          fprintf(fp, "[%d]: %f %f\n", i, line1[i].real(), line2[i].real());
-          fclose(fp);
-        }
-}
-*/
-
 void read_persisted_line(CArray& X, char *matrix_file) {
   int matrix_dim;
 

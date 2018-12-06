@@ -27,11 +27,11 @@ void dft2(float **in, float **out_real, float **out_im) {
   for(int x=0; x<N; x++) {
     for(int n=0; n<N; n++) {
       for(int k=0; k<N; k++) {
-	out_real[k][x] += mid_real[n][x] * cos(2*PI*k*n/N);
-	out_im[k][x] -= mid_real[n][x] * sin(2*PI*k*n/N);
+      	out_real[k][x] += mid_real[n][x] * cos(2*PI*k*n/N);
+      	out_im[k][x] -= mid_real[n][x] * sin(2*PI*k*n/N);
 
-	out_real[k][x] += mid_im[n][x] * sin(2*PI*k*n/N);
-	out_im[k][x] += mid_im[n][x] * cos(2*PI*k*n/N);
+      	out_real[k][x] += mid_im[n][x] * sin(2*PI*k*n/N);
+      	out_im[k][x] += mid_im[n][x] * cos(2*PI*k*n/N);
       }
     }
   }
