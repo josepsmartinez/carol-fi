@@ -9,6 +9,8 @@
 #define N (S+K-1)
 #define PI 3.14159265
 
+#define _DUPLICATE
+
 void dft2(float **in, float **out_real, float **out_im) {
   float mid_real[N][N] = {0};
   float mid_im[N][N] = {0} ;
@@ -240,16 +242,19 @@ int main(int argc, char **argv) {
 
   // Allocates output
   y_1 = malloc_2d(N, N, 0.0);
-  y_2 = malloc_2d(N, N, 0.0);
+  #ifdef _DUPLICATE
+    y_2 = malloc_2d(N, N, 0.0);
+  #endif
 
   // Op
   for (int m=0; m < M; m++) {
 
 
     conv_wrapper(input_matrix, input_kernels[m], y_1);
-    conv_wrapper(input_matrix, input_kernels[m], y_2);
-
-    compare_output(y_1, y_2, argv[4], S);
+    #ifdef _DUPLICATE
+      conv_wrapper(input_matrix, input_kernels[m], y_2);
+      compare_output(y_1, y_2, argv[4], S);
+    #endif
 
     output_matrix(output_file_ptr, y_1, S, S);
   }
@@ -261,7 +266,9 @@ int main(int argc, char **argv) {
   free_2d(S, input_matrix); // try with N
   free_2d(M, input_kernels);
   free_2d(N, y_1);
-  free_2d(N, y_2);
+  #ifdef _DUPLICATE
+    free_2d(N, y_2);
+  #endif
 
   fclose(output_file_ptr);
 

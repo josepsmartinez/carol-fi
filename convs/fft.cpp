@@ -12,6 +12,8 @@
 const int N = S+K-1; //padding
 const double PI = 3.141592653589793238460;
 
+#define _DUPLICATE
+
 typedef std::complex<double> Complex;
 typedef std::valarray<Complex> CArray;
 typedef std::valarray<CArray> KernelsArray;
@@ -257,10 +259,12 @@ int main(int argc, char **argv)
 
   for (int m=0; m<M; m++) {
     conv_wrapper(raw_input, kernels[m], output1, output_file_ptr, 1);
-    conv_wrapper(raw_input, kernels[m], output2, output_file_ptr, 0);
 
+    #ifdef _DUPLICATE
+      conv_wrapper(raw_input, kernels[m], output2, output_file_ptr, 0);
 
-    compare_output(output1, output2, argv[4], S);
+      compare_output(output1, output2, argv[4], S);
+    #endif
   }
 
 
