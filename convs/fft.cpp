@@ -12,7 +12,7 @@
 const int N = S+K-1; //padding
 const double PI = 3.141592653589793238460;
 
-#define _DUPLICATE
+//#define _DUPLICATE
 
 typedef std::complex<double> Complex;
 typedef std::valarray<Complex> CArray;

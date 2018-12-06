@@ -9,7 +9,7 @@
 #define N (S+K-1)
 #define PI 3.14159265
 
-#define _DUPLICATE
+//#define _DUPLICATE
 
 void dft2(float **in, float **out_real, float **out_im) {
   float mid_real[N][N] = {0};

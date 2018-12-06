@@ -9,7 +9,7 @@
 #define KernelSize K
 #define NumberOfKernels M
 
-#define _DUPLICATE
+//#define _DUPLICATE
 
 
 void simpleConvolution(float** inputImage, float** outputImage, float** convKernel) {
